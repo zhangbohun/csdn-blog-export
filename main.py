@@ -3,10 +3,9 @@
 from bs4 import BeautifulSoup
 import urllib2
 import codecs
-import re
+import os
 import sys, getopt
-# https://github.com/aaronsw/html2text
-import html2text
+import html2text# https://github.com/aaronsw/html2text
 
 # responsible for printing
 class PrintLayer(object):
@@ -37,8 +36,8 @@ class PrintLayer(object):
     @staticmethod
     def printOver():
         print 'Over. If has any problem, contact me with http://ask.fm/gaocegege'
-        
 
+       
 class Analyzer(object):
     """docstring for Analyzer"""
     def __init__(self):
@@ -80,23 +79,49 @@ class Exporter(Analyzer):
         f.write(self.getArticleContent(detail).prettify())
 
     # export
-    def export(self, link, filename, form):
+    def export(self, link, form):
         html_doc = self.get(link)
         soup = BeautifulSoup(html_doc)
         detail = self.getContent(soup).find(id='article_details')
+        #文件名设置为文章标题
+        filename=soup.find(class_='article_title').h1.span.a.get_text()
+        filename=filename.replace('\r\n','')
+        filename=filename.replace(' ','')
+        filename=filename.replace('?','')
+        filename=filename.replace('\\','')
+        filename=filename.replace('/','')
+        filename=filename.replace('*','')
+        filename=filename.replace('\'','')
+        filename=filename.replace(':','')
+        filename=filename.replace('|','')
+        filename=filename.replace('<','')
+        filename=filename.replace('>','')
+        #设置默认导出目录
         if form == 'markdown':
+            if os.path.exists("markdown"):
+                os.chdir("markdown")
+            else:
+                os.makedirs("markdown")
+                os.chdir("markdown")
             f = codecs.open(filename + '.md', 'w', encoding='utf-8')
             self.export2markdown(f, detail)
             f.close()
+            os.chdir("..")
             return
         elif form == 'html':
+            if os.path.exists("html"):
+                os.chdir("html")
+            else:
+                os.makedirs("html")
+                os.chdir("html")
             f = codecs.open(filename + '.html', 'w', encoding='utf-8')
             self.export2html(f, detail)
             f.close()
+            os.chdir("..")
             return
 
-    def run(self, link, f, form):
-        self.export(link, f, form)
+    def run(self, link,form):
+        self.export(link,form)
         
 
 class Parser(Analyzer):
@@ -110,7 +135,6 @@ class Parser(Analyzer):
     def parse(self, html_doc):
         soup = BeautifulSoup(html_doc)
         res = self.getContent(soup).find(class_='list_item_new').find(id='article_list').find_all(class_='article_item')
-        i = 0
         for ele in res:
             self.article_list.append('http://blog.csdn.net/' + ele.find(class_='article_title').h1.span.a['href'])
 
@@ -144,7 +168,7 @@ class Parser(Analyzer):
         for link in self.article_list:
             PrintLayer.printWorkingArticle(link)
             exporter = Exporter()
-            exporter.run(link, link.split('/')[7], form)
+            exporter.run(link, form)#删除文件名设置
 
     # the page given
     def run(self, url, page=-1, form='markdown'):
@@ -166,25 +190,22 @@ class Parser(Analyzer):
 
 def main(argv):
     page = -1
-    directory = '-1'
     username = 'default'
     form = 'markdown'
     try:
         opts, args = getopt.getopt(argv,"hu:f:p:o:")
     except Exception, e:
-        print 'main.py -u <username> [-f <format>] [-p <page>] [-o <outputDirectory>]'
+        print 'main.py -u <username> [-f <format>] [-p <page>]'#删除了目录参数
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'main.py -u <username> [-f <format>] [-p <page>] [-o <outputDirectory>]'
+            print 'main.py -u <username> [-f <format>] [-p <page>]'
             sys.exit()
         elif opt == '-u':
             username = arg
         elif opt == '-p':
-            page = arg
-        elif opt == '-o':
-            directory = arg
+            page = int(arg)#修正分页下载参数设置
         elif opt == '-f':
             form = arg
 

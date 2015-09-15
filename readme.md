@@ -16,7 +16,6 @@
 	main.py -u <username> [-f <format>] [-p <page>] [-o <outputDirectory>]
 		<format>： html | markdown，缺省为markdown
 		<page>为导出特定页面的文章，缺省导出所有文章
-		<outputDirectory>暂不可用
 
 ### Example
 
@@ -32,9 +31,7 @@
 
 ## To Do
 
-1. 文件名修正
-2. 设置默认导出目录
-3. pdf导出支持
+1. pdf导出支持
 
 ## Licence
 
