@@ -13,7 +13,7 @@
 
 ### 使用方法
 	
-	main.py -u <username> [-f <format>] [-p <page>] [-o <outputDirectory>]
+	main.py -u <username> [-f <format>] [-p <page>]
 		<format>： html | markdown，缺省为markdown
 		<page>为导出特定页面的文章，缺省导出所有文章
 
