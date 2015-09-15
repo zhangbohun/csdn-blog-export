@@ -84,7 +84,7 @@ class Exporter(Analyzer):
         soup = BeautifulSoup(html_doc)
         detail = self.getContent(soup).find(id='article_details')
         #文件名设置为文章标题
-        filename=soup.find(class_='article_title').h1.span.a.get_text()
+        filename=soup.find(class_='article_title').h1.span.get_text()
         filename=filename.replace('\r\n','')
         filename=filename.replace(' ','')
         filename=filename.replace('?','')
